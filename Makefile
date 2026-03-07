@@ -23,7 +23,7 @@ db.migrate:
 	docker-compose run backend bundle exec rake db:migrate
 
 rspec:
-	docker-compose run --rm --no-deps backend bundle exec rspec
+	docker-compose run --rm --no-deps backend bundle exec rspec $(FILE)
 
 rubocop:
 	docker-compose run --rm --no-deps backend rubocop

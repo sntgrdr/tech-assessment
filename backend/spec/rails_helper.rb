@@ -79,4 +79,9 @@ RSpec.configure do |config|
       with.library :rails
     end
   end
+
+  # Disable host authorization for all request specs
+  config.before(:each, type: :request) do
+    host! "localhost"
+  end
 end
