@@ -6,12 +6,15 @@ class Api::V1::OrdersController < ApplicationController
 
   # GET /api/v1/orders
   def index
-    @orders = if current_person.admin?
-              Order.all.includes(:person)
-    else
-              current_person.orders
-    end
-    render json: @orders.as_json(include: :person)
+    service_result = OrderIndexService.new(current_person, index_params).call
+
+    @pagy, @orders = pagy(service_result[:orders_relation], items: 8, page: index_params[:page])
+
+    render json: {
+      orders: @orders.as_json(include: { person: { only: [ :id, :email ] } }),
+      pagination: pagy_metadata(@pagy),
+      stats: service_result[:stats]
+    }
   end
 
   # GET /api/v1/orders/:id
@@ -70,5 +73,9 @@ class Api::V1::OrdersController < ApplicationController
     unless current_person.admin?
       render json: { error: "Not authorized. Admins only." }, status: :forbidden
     end
+  end
+
+  def index_params
+    params.permit(:status, :email, :from_date, :to_date, :page)
   end
 end

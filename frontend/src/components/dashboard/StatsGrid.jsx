@@ -1,7 +1,7 @@
 import React from 'react';
 import StatsCard from './StatsCard';
 
-const StatsGrid = ({ stats }) => {
+const StatsGrid = ({ stats, activeFilter, onFilterClick }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -13,6 +13,7 @@ const StatsGrid = ({ stats }) => {
     {
       title: 'Total Orders',
       value: stats.total_orders || 0,
+      status: 'all',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -21,28 +22,9 @@ const StatsGrid = ({ stats }) => {
       color: 'blue',
     },
     {
-      title: 'Orders Today',
-      value: stats.orders_today || 0,
-      icon: (
-        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      color: 'green',
-    },
-    {
-      title: 'Orders This Month',
-      value: stats.orders_this_month || 0,
-      icon: (
-        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      color: 'purple',
-    },
-    {
       title: 'Pending Orders',
       value: stats.pending_orders || 0,
+      status: 'pending',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -53,6 +35,7 @@ const StatsGrid = ({ stats }) => {
     {
       title: 'Confirmed Orders',
       value: stats.confirmed_orders || 0,
+      status: 'confirmed',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -63,6 +46,7 @@ const StatsGrid = ({ stats }) => {
     {
       title: 'Processing Orders',
       value: stats.processing_orders || 0,
+      status: 'processing',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -73,6 +57,7 @@ const StatsGrid = ({ stats }) => {
     {
       title: 'Shipped Orders',
       value: stats.shipped_orders || 0,
+      status: 'shipped',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
@@ -83,6 +68,7 @@ const StatsGrid = ({ stats }) => {
     {
       title: 'Delivered Orders',
       value: stats.delivered_orders || 0,
+      status: 'delivered',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -99,30 +85,33 @@ const StatsGrid = ({ stats }) => {
         </svg>
       ),
       color: 'green',
-    },
-    {
-      title: 'Average Order Value',
-      value: formatCurrency(stats.average_order_value || 0),
-      icon: (
-        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
-      color: 'purple',
-    },
+    }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {statsData.map((stat, index) => (
-        <StatsCard
-          key={index}
-          title={stat.title}
-          value={stat.value}
-          icon={stat.icon}
-          color={stat.color}
-        />
-      ))}
+      {statsData.map((stat, index) => {
+        const isFilterable = !!stat.status;
+        const isActive = activeFilter === stat.status;
+
+        return (
+          <div
+            key={index}
+            onClick={() => isFilterable && onFilterClick(stat.status)}
+            className={`transition-all duration-200 ${
+              isFilterable ? 'cursor-pointer hover:transform hover:scale-105' : ''
+            }`}
+          >
+            <StatsCard
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+              isActive={isActive}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

@@ -16,8 +16,17 @@ RSpec.describe "Orders API", type: :request do
         get "/api/v1/orders", headers: auth_headers(person), as: :json
 
         expect(response).to have_http_status(:ok)
-        expect(json.size).to eq(2)
-        expect(json.map { |o| o['id'] }).to contain_exactly(order1.id, order2.id)
+        expect(json['orders'].size).to eq(2)
+        expect(json['orders'].map { |o| o['id'] }).to contain_exactly(order1.id, order2.id)
+      end
+
+      it "returns paginated orders" do
+        get "/api/v1/orders", headers: auth_headers(person), as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to have_key('orders')
+        expect(json).to have_key('pagination')
+        expect(json['orders'].size).to eq(2)
       end
     end
 
@@ -26,8 +35,8 @@ RSpec.describe "Orders API", type: :request do
         get "/api/v1/orders", headers: auth_headers(admin), as: :json
 
         expect(response).to have_http_status(:ok)
-        expect(json.size).to eq(3)
-        expect(json.map { |o| o['id'] }).to include(order1.id, order2.id, other_order.id)
+        expect(json['orders'].size).to eq(12)
+        expect(json['orders'].map { |o| o['id'] }).to include(order1.id, order2.id, other_order.id)
       end
     end
 

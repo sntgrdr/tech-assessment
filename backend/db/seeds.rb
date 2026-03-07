@@ -18,7 +18,7 @@ puts "Created Admin: #{admin.email}"
 customers_data = [
   { email: 'john.doe@example.com', first_name: 'John', last_name: 'Doe' },
   { email: 'jane.smith@example.com', first_name: 'Jane', last_name: 'Smith' },
-  { email: 'santi.rodriguez@example.com', first_name: 'Santi', last_name: 'Rodriguez' }
+  { email: 'paul.athomp@example.com', first_name: 'Paul', last_name: 'Athomp' }
 ]
 
 customers_data.each do |data|

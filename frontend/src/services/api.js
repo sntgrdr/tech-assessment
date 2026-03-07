@@ -75,26 +75,22 @@ const api = {
     }
   },
 
-  getOrders: async () => {
-    try {
-      const token = getToken();
-      if (!token) throw new Error('No token found');
+  getOrders: async (filters = {}) => {
+    const { page = 1, status = 'all', email = '', from = '', to = '' } = filters;
+    const token = getToken();
 
-      const response = await fetch(`${API_BASE_URL}/orders`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+    const query = new URLSearchParams({
+      page,
+      status,
+      email,
+      from_date: from,
+      to_date: to
+    }).toString();
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch orders');
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
-    }
+    const response = await fetch(`${API_BASE_URL}/orders?${query}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await response.json();
   },
 
   createOrder: async (orderData) => {
@@ -114,28 +110,6 @@ const api = {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.errors || 'Failed to create order');
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getStats: async () => {
-    try {
-      const token = getToken();
-      if (!token) throw new Error('No token found');
-
-      const response = await fetch(`${API_BASE_URL}/orders/stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch stats');
       }
 
       return await response.json();
