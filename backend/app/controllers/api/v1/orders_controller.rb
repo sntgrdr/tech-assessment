@@ -16,7 +16,7 @@ class Api::V1::OrdersController < ApplicationController
 
   # POST /api/v1/orders
   def create
-    @order = OrderCreationService.create_order(current_person, order_params)
+    @order = OrderCreationService.create_order(current_person, order_creation_params)
     render json: @order.as_json(include: :person), status: :created
   rescue OrderCreationService::InvalidOrderError => e
     render json: { errors: e.message }, status: :unprocessable_entity
@@ -24,7 +24,7 @@ class Api::V1::OrdersController < ApplicationController
 
   # PATCH/PUT /api/v1/orders/:id
   def update
-    @order = OrderUpdateService.update_order(@order, order_params)
+    @order = OrderUpdateService.update_order(@order, order_update_params)
     render json: @order.as_json(include: :person)
   rescue OrderUpdateService::InvalidOrderError => e
     render json: { errors: e.message }, status: :unprocessable_entity
@@ -50,7 +50,11 @@ class Api::V1::OrdersController < ApplicationController
     render json: { error: "Order not found" }, status: :not_found
   end
 
-  def order_params
+  def order_creation_params
+    params.require(:order).permit(:total_amount, :notes, :order_date)
+  end
+
+  def order_update_params
     params.require(:order).permit(:status, :total_amount, :notes, :order_date)
   end
 end

@@ -110,9 +110,9 @@ RSpec.describe Order, type: :model do
 
   describe 'Scopes' do
     let!(:person) { create(:person) }
-    let!(:order1) { create(:order, person: person, status: 'pending', order_date: 1.day.ago) }
-    let!(:order2) { create(:order, person: person, status: 'confirmed', order_date: Date.current) }
-    let!(:order3) { create(:order, person: person, status: 'delivered', order_date: 2.days.ago) }
+    let!(:order1) { create(:order, person: person, status: 'pending', order_date: 1.day.ago, created_at: 3.days.ago) }
+    let!(:order2) { create(:order, person: person, status: 'confirmed', order_date: Date.current, created_at: 2.days.ago) }
+    let!(:order3) { create(:order, person: person, status: 'delivered', order_date: 2.days.ago, created_at: 1.day.ago) }
 
     describe '.by_customer' do
       it 'returns orders for specific person' do
@@ -136,7 +136,8 @@ RSpec.describe Order, type: :model do
       it 'returns orders within date range' do
         expect(Order.by_date_range(2.days.ago, Date.current)).to contain_exactly(order1, order2, order3)
         expect(Order.by_date_range(Date.current, Date.current)).to contain_exactly(order2)
-        expect(Order.by_date_range(3.days.ago, 2.days.ago)).to contain_exactly(order3)
+        expect(Order.by_date_range(2.days.ago, 2.days.ago)).to contain_exactly(order3)
+        expect(Order.by_date_range(1.day.ago, 1.day.ago)).to contain_exactly(order1)
       end
     end
 

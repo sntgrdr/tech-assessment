@@ -17,7 +17,7 @@ sh:
 	docker-compose run backend sh
 
 db.init:
-	docker-compose run backend bundle exec rake db:create db:migrate db:seed
+	docker-compose run backend bundle exec rake db:drop db:create db:migrate db:seed
 
 db.migrate:
 	docker-compose run backend bundle exec rake db:migrate
