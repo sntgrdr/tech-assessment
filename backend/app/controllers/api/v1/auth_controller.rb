@@ -1,4 +1,6 @@
 class Api::V1::AuthController < ApplicationController
+  skip_before_action :authenticate_request!, only: [ :login ]
+
   def login
     person = AuthService.authenticate(params[:email], params[:password])
     token = AuthService.generate_token(person.id)
@@ -16,22 +18,8 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def current_user
-    header = request.headers["Authorization"]
-    token = header&.split(" ")&.last
-
-    if token
-      begin
-        person = AuthService.current_person(token)
-        if person
-          render json: person.as_json(only: [ :id, :email, :first_name, :last_name ])
-        else
-          render json: { error: "Unauthorized" }, status: :unauthorized
-        end
-      rescue AuthService::AuthenticationError, AuthService::TokenExpiredError, AuthService::TokenInvalidError
-        render json: { error: "Unauthorized" }, status: :unauthorized
-      end
-    else
-      render json: { error: "Unauthorized" }, status: :unauthorized
-    end
+    render json: {
+      person: current_person.as_json(only: [ :id, :email, :first_name, :last_name ])
+    }
   end
 end
