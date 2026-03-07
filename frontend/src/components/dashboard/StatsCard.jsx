@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardBody } from '../ui/Card';
 
-const StatsCard = ({ title, value, icon, color = 'blue', trend }) => {
+const StatsCard = ({ title, value, icon, color = 'blue', trend, isActive }) => {
   const colorClasses = {
     blue: 'bg-blue-500',
     green: 'bg-green-500',
@@ -20,6 +20,15 @@ const StatsCard = ({ title, value, icon, color = 'blue', trend }) => {
     indigo: 'bg-indigo-50',
   };
 
+  const activeBgClasses = {
+    blue: 'bg-blue-100 border-blue-200',
+    green: 'bg-green-100 border-green-200',
+    yellow: 'bg-yellow-100 border-yellow-200',
+    red: 'bg-red-100 border-red-200',
+    purple: 'bg-purple-100 border-purple-200',
+    indigo: 'bg-indigo-100 border-indigo-200',
+  };
+
   const textColorClasses = {
     blue: 'text-blue-600',
     green: 'text-green-600',
@@ -30,7 +39,7 @@ const StatsCard = ({ title, value, icon, color = 'blue', trend }) => {
   };
 
   return (
-    <Card>
+    <Card className={`transition-colors duration-200 ${isActive ? activeBgClasses[color] + ' border-2 shadow-md' : 'border-transparent'}`}>
       <CardBody>
         <div className="flex items-center">
           <div className={`flex-shrink-0 ${bgColorClasses[color]} p-3 rounded-lg`}>

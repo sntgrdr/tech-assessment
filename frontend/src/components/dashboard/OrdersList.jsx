@@ -2,7 +2,18 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardBody } from '../ui/Card';
 import EditOrderStatus from './EditOrderStatus';
 
-const OrdersList = ({ orders, loading, onUpdateStatus, onDelete, serverError, clearError, currentUser }) => {
+// Added pagination and onPageChange to props
+const OrdersList = ({
+  orders = [],
+  pagination,
+  loading,
+  onUpdateStatus,
+  onDelete,
+  onPageChange, // Function to fetch the next/prev page
+  serverError,
+  clearError,
+  currentUser
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const isAdmin = currentUser?.role === 'admin';
@@ -112,7 +123,14 @@ const OrdersList = ({ orders, loading, onUpdateStatus, onDelete, serverError, cl
     <>
       <Card>
         <CardHeader>
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
+            {pagination && (
+              <span className="text-xs text-gray-500">
+                Page {pagination.page} of {pagination.last} ({pagination.count} total)
+              </span>
+            )}
+          </div>
         </CardHeader>
         <CardBody>
           <div className="overflow-x-auto">
@@ -120,6 +138,7 @@ const OrdersList = ({ orders, loading, onUpdateStatus, onDelete, serverError, cl
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number</th>
+                  {isAdmin && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
@@ -130,6 +149,11 @@ const OrdersList = ({ orders, loading, onUpdateStatus, onDelete, serverError, cl
                 {orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.number}</td>
+                    {isAdmin && (
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {order.person ? `${order.person.email}` : 'N/A'}
+                      </td>
+                    )}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                         {getStatusIcon(order.status)}
@@ -175,6 +199,64 @@ const OrdersList = ({ orders, loading, onUpdateStatus, onDelete, serverError, cl
               </tbody>
             </table>
           </div>
+
+          {pagination && pagination.last > 1 && (
+            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  onClick={() => onPageChange(pagination.prev)}
+                  disabled={!pagination.prev}
+                  className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 ${!pagination.prev ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => onPageChange(pagination.next)}
+                  disabled={!pagination.next}
+                  className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 ${!pagination.next ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{pagination.from}</span> to <span className="font-medium">{pagination.to}</span> of{' '}
+                    <span className="font-medium">{pagination.count}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    <button
+                      onClick={() => onPageChange(pagination.prev)}
+                      disabled={!pagination.prev}
+                      className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${!pagination.prev ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                    >
+                      <span className="sr-only">Previous</span>
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+
+                    <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300">
+                      Page {pagination.page}
+                    </span>
+
+                    <button
+                      onClick={() => onPageChange(pagination.next)}
+                      disabled={!pagination.next}
+                      className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${!pagination.next ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                    >
+                      <span className="sr-only">Next</span>
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </CardBody>
       </Card>
 
