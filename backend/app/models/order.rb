@@ -14,7 +14,7 @@ class Order < ApplicationRecord
   validates :person, presence: true
   validates :number, presence: true, uniqueness: true
   validates :status, presence: true, inclusion: { in: statuses.keys }
-  validates :total_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :total_amount, presence: true, numericality: { greater_than: 0 }
   validates :order_date, presence: true
 
   # Callbacks

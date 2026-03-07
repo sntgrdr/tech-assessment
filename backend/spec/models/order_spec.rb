@@ -58,10 +58,10 @@ RSpec.describe Order, type: :model do
         expect(order.errors[:total_amount]).to include("can't be blank")
       end
 
-      it 'must be greater than or equal to 0' do
+      it 'must be greater than 0' do
         order.total_amount = -10
         expect(order).not_to be_valid
-        expect(order.errors[:total_amount]).to include("must be greater than or equal to 0")
+        expect(order.errors[:total_amount]).to include("must be greater than 0")
       end
 
       it 'accepts valid amounts' do

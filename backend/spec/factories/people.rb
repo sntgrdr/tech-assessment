@@ -5,5 +5,6 @@ FactoryBot.define do
     last_name { Faker::Name.last_name }
     phone { Faker::PhoneNumber.phone_number }
     company { Faker::Company.name }
+    password { 'password123' }
   end
 end
