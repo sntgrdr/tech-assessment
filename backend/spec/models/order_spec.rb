@@ -184,5 +184,27 @@ RSpec.describe Order, type: :model do
         expect(order.order_date).to eq(existing_date)
       end
     end
+
+    describe 'after_create_commit' do
+      it 'enqueues a confirmation email after creation' do
+        order = build(:order)
+
+        expect {
+          order.save!
+        }.to have_enqueued_mail(OrderMailer, :confirmation_email).with(order)
+      end
+
+      it 'does not enqueue an email if the transaction fails' do
+        expect {
+          begin
+            Order.transaction do
+              create(:order)
+              raise ActiveRecord::Rollback
+            end
+          rescue
+          end
+        }.not_to have_enqueued_mail(OrderMailer, :confirmation_email)
+      end
+    end
   end
 end
