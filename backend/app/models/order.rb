@@ -8,7 +8,7 @@ class Order < ApplicationRecord
     shipped: "shipped",
     delivered: "delivered",
     cancelled: "cancelled"
-  }
+  }.freeze
 
   # Validations
   validates :person, presence: true
@@ -24,13 +24,14 @@ class Order < ApplicationRecord
 
   after_create_commit :send_confirmation_email
 
-  # Scopes for common queries
+  # Scopes filters
   scope :by_customer, ->(person_id) { where(person_id: person_id) }
   scope :by_status, ->(status) { where(status: status) }
   scope :by_date_range, ->(start_date, end_date) { where(order_date: start_date..end_date) }
   scope :recent, -> { order(created_at: :desc) }
-  scope :by_number, ->(number) { where(number: number) }
-
+  scope :by_number, ->(number) {
+    where("CAST(number AS TEXT) ILIKE ?", "%#{number}%")
+  }
 
   private
 

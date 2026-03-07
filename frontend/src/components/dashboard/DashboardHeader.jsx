@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../ui/Button';
 
@@ -14,7 +13,7 @@ const DashboardHeader = ({ onCreateOrder, onLogout }) => {
               <h1 className="text-2xl font-bold text-gray-900">Orders Dashboard</h1>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
@@ -33,7 +32,7 @@ const DashboardHeader = ({ onCreateOrder, onLogout }) => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Button
                 variant="primary"
@@ -44,7 +43,7 @@ const DashboardHeader = ({ onCreateOrder, onLogout }) => {
                 </svg>
                 Create Order
               </Button>
-              
+
               <Button
                 variant="outline"
                 onClick={onLogout}

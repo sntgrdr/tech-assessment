@@ -76,7 +76,7 @@ const api = {
   },
 
   getOrders: async (filters = {}) => {
-    const { page = 1, status = 'all', email = '', from = '', to = '' } = filters;
+    const { page = 1, status = 'all', email = '', from = '', to = '', number = '' } = filters;
     const token = getToken();
 
     const query = new URLSearchParams({
@@ -84,7 +84,8 @@ const api = {
       status,
       email,
       from_date: from,
-      to_date: to
+      to_date: to,
+      number
     }).toString();
 
     const response = await fetch(`${API_BASE_URL}/orders?${query}`, {

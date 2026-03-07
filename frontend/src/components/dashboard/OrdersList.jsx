@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardBody } from '../ui/Card';
 import EditOrderStatus from './EditOrderStatus';
 
-// Added pagination and onPageChange to props
 const OrdersList = ({
   orders = [],
   pagination,
   loading,
   onUpdateStatus,
   onDelete,
-  onPageChange, // Function to fetch the next/prev page
+  onPageChange,
   serverError,
   clearError,
   currentUser

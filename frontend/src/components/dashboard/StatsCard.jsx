@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardBody } from '../ui/Card';
 
 const StatsCard = ({ title, value, icon, color = 'blue', trend, isActive }) => {

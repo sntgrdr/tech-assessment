@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import StatsGrid from '../components/dashboard/StatsGrid';
 import OrdersList from '../components/dashboard/OrdersList';
-import Modal from '../components/ui/Modal';
-import CreateOrderForm from '../components/orders/CreateOrderForm';
 import OrderFilters from '../components/dashboard/OrderFilters';
 
 const DashboardPage = () => {
@@ -22,7 +20,8 @@ const DashboardPage = () => {
     status: 'all',
     email: '',
     from: '',
-    to: ''
+    to: '',
+    number: ''
   });
 
   const fetchStats = async () => {

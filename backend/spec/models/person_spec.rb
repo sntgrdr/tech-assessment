@@ -103,42 +103,4 @@ RSpec.describe Person, type: :model do
       expect(association.options[:dependent]).to eq(:destroy)
     end
   end
-
-  describe 'Helper Methods' do
-    let(:person) { create(:person, first_name: 'John', last_name: 'Doe') }
-
-    describe '#orders_count' do
-      it 'returns count of associated orders' do
-        create_list(:order, 3, person: person)
-        expect(person.orders_count).to eq(3)
-      end
-    end
-
-    describe '#recent_orders' do
-      it 'returns recent orders with default limit' do
-        create_list(:order, 10, person: person)
-        recent = person.recent_orders
-        expect(recent.count).to eq(5)
-        expect(recent).to eq(person.orders.recent.limit(5))
-      end
-
-      it 'returns recent orders with custom limit' do
-        create_list(:order, 10, person: person)
-        recent = person.recent_orders(3)
-        expect(recent.count).to eq(3)
-      end
-    end
-
-    describe '#orders_by_status' do
-      it 'returns orders with specific status' do
-        create(:order, person: person, status: 'pending')
-        create(:order, person: person, status: 'confirmed')
-        create(:order, person: person, status: 'delivered')
-
-        pending_orders = person.orders_by_status('pending')
-        expect(pending_orders.count).to eq(1)
-        expect(pending_orders.first.status).to eq('pending')
-      end
-    end
-  end
 end

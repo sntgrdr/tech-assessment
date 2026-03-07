@@ -8,7 +8,7 @@ class Api::V1::OrdersController < ApplicationController
   def index
     service_result = OrderIndexService.new(current_person, index_params).call
 
-    @pagy, @orders = pagy(service_result[:orders_relation], items: 8, page: index_params[:page])
+    @pagy, @orders = pagy(service_result[:orders_relation], items: 20, page: index_params[:page])
 
     render json: {
       orders: @orders.as_json(include: { person: { only: [ :id, :email ] } }),
@@ -36,12 +36,6 @@ class Api::V1::OrdersController < ApplicationController
     render json: @order.as_json(include: :person)
   rescue OrderUpdateService::InvalidOrderError => e
     render json: { errors: e.message }, status: :unprocessable_entity
-  end
-
-  # GET /api/v1/orders/stats
-  def stats
-    stats = OrderStatsService.get_person_stats(current_person)
-    render json: stats
   end
 
   # DELETE /api/v1/orders/:id
@@ -76,6 +70,6 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def index_params
-    params.permit(:status, :email, :from_date, :to_date, :page)
+    params.permit(:status, :email, :from_date, :to_date, :number, :page)
   end
 end

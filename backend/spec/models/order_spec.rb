@@ -12,7 +12,7 @@ RSpec.describe Order, type: :model do
       it 'is required' do
         order.person = nil
         expect(order).not_to be_valid
-        expect(order.errors[:person]).to include("must exist")
+        expect(order.errors[:person]).to include('must exist')
       end
     end
 
@@ -21,7 +21,7 @@ RSpec.describe Order, type: :model do
         create(:order, number: 'ORD-TEST123')
         duplicate_order = build(:order, number: 'ORD-TEST123')
         expect(duplicate_order).not_to be_valid
-        expect(duplicate_order.errors[:number]).to include("has already been taken")
+        expect(duplicate_order.errors[:number]).to include('has already been taken')
       end
 
       it 'is auto-generated when blank' do
@@ -61,7 +61,7 @@ RSpec.describe Order, type: :model do
       it 'must be greater than 0' do
         order.total_amount = -10
         expect(order).not_to be_valid
-        expect(order.errors[:total_amount]).to include("must be greater than 0")
+        expect(order.errors[:total_amount]).to include('must be greater than 0')
       end
 
       it 'accepts valid amounts' do

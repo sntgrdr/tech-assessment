@@ -1,47 +1,52 @@
-class OrderIndexService
-  def initialize(user, params)
-    @user = user
-    @params = params
-  end
+require 'rails_helper'
 
-  def call
-    orders = filtered_orders
+RSpec.describe OrderIndexService do
+  let(:admin) { create(:person, :admin) }
+  let(:customer) { create(:person, :customer) }
 
-    # We calculate stats before pagination to include the whole filtered set
-    stats = calculate_stats(orders)
+  let!(:order_pending) { create(:order, person: customer, status: :pending, total_amount: 100, order_date: 2.days.ago) }
+  let!(:order_confirmed) { create(:order, person: customer, status: :confirmed, total_amount: 200, order_date: 1.day.ago) }
 
-    # We use a controller context for pagy or handle it here
-    # Since pagy usually needs the controller context, we return the relation
-    {
-      orders_relation: orders.order(created_at: :desc),
-      stats: stats
-    }
-  end
+  describe '#call' do
+    context 'cuando se filtra por status confirmed' do
+      let(:params) { { status: 'confirmed' } }
+      subject { described_class.new(admin, params).call }
 
-  private
+      it 'devuelve solo la orden confirmada en orders_relation' do
+        expect(subject[:orders_relation]).to include(order_confirmed)
+        expect(subject[:orders_relation]).not_to include(order_pending)
+      end
 
-  def filtered_orders
-    scope = @user.admin? ? Order.all : @user.orders
-    scope = scope.includes(:person)
+      it 'recalcula el revenue basado solo en las confirmadas' do
+        expect(subject[:stats][:total_revenue]).to eq(200.0)
+      end
 
-    scope = scope.where(status: @params[:status]) if @params[:status].present? && @params[:status] != 'all'
-    scope = scope.joins(:person).where('people.email ILIKE ?', "%#{@params[:email]}%") if @params[:email].present?
-    scope = scope.where('orders.created_at >= ?', @params[:from_date].to_date.beginning_of_day) if @params[:from_date].present?
-    scope = scope.where('orders.created_at <= ?', @params[:to_date].to_date.end_of_day) if @params[:to_date].present?
+      it 'mantiene los contadores globales (no se filtran por status)' do
+        expect(subject[:stats][:total_orders]).to eq(2)
+        expect(subject[:stats][:pending_orders]).to eq(1)
+        expect(subject[:stats][:confirmed_orders]).to eq(1)
+      end
+    end
 
-    scope
-  end
+    context 'cuando se filtra por número de orden parcial' do
+      let!(:special_order) { create(:order, number: 'ORD-PAUL-S3', person: customer) }
+      let(:params) { { number: 'paul' } }
+      subject { described_class.new(admin, params).call }
 
-  def calculate_stats(scope)
-    {
-      total_orders: scope.count,
-      total_revenue: scope.sum(:total_amount),
-      pending_orders: scope.where(status: 'pending').count,
-      confirmed_orders: scope.where(status: 'confirmed').count,
-      processing_orders: scope.where(status: 'processing').count,
-      shipped_orders: scope.where(status: 'shipped').count,
-      delivered_orders: scope.where(status: 'delivered').count,
-      average_order_value: scope.average(:total_amount).to_f.round(2)
-    }
+      it 'encuentra la orden ignorando mayúsculas y de forma parcial' do
+        expect(subject[:orders_relation]).to include(special_order)
+        expect(subject[:stats][:total_orders]).to eq(1)
+      end
+    end
+
+    context 'filtros de fecha' do
+      let(:params) { { from_date: 1.day.ago.to_s, to_date: Time.current.to_s } }
+      subject { described_class.new(admin, params).call }
+
+      it 'filtra los contadores globales por fecha' do
+        expect(subject[:stats][:total_orders]).to eq(1)
+        expect(subject[:stats][:pending_orders]).to eq(0)
+      end
+    end
   end
 end

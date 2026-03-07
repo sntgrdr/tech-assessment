@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -55,7 +55,6 @@ const LoginForm = () => {
     try {
       await login(formData.email, formData.password);
     } catch (error) {
-      // Error is handled by AuthContext
     }
   };
 

@@ -4,6 +4,7 @@ require_relative '../config/environment'
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 require 'shoulda/matchers'
+require 'database_cleaner/active_record'
 
 module ApiHelpers
   def json
@@ -26,6 +27,17 @@ RSpec.configure do |config|
 
   config.before(:each, type: :request) do
     host! "localhost"
+  end
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.around(:each) do |example|
+    DatabaseCleaner.cleaning do
+      example.run
+    end
   end
 
   config.include ActiveJob::TestHelper

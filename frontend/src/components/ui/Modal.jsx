@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   useEffect(() => {
@@ -31,15 +31,12 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-        {/* Background overlay */}
         <div
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
           onClick={onClose}
         ></div>
 
-        {/* Modal panel */}
         <div className={`relative inline-block w-full ${sizes[size]} transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:align-middle`}>
-          {/* Header */}
           <div className="border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium leading-6 text-gray-900">
@@ -58,7 +55,6 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
             </div>
           </div>
 
-          {/* Body */}
           <div className="bg-white px-4 py-5 sm:p-6">
             {children}
           </div>
