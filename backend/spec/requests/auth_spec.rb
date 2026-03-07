@@ -13,10 +13,9 @@ RSpec.describe "Authentication API", type: :request do
       post "/api/v1/auth/login", params: login_params, as: :json
 
       expect(response).to have_http_status(:ok)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key('token')
-      expect(json_response).to have_key('person')
-      expect(json_response['person']['email']).to eq(person.email)
+      expect(json).to have_key('token')
+      expect(json).to have_key('person')
+      expect(json['person']['email']).to eq(person.email)
     end
 
     it "rejects invalid credentials" do
@@ -28,7 +27,7 @@ RSpec.describe "Authentication API", type: :request do
       post "/api/v1/auth/login", params: login_params, as: :json
 
       expect(response).to have_http_status(:unauthorized)
-      expect(JSON.parse(response.body)['error']).to eq('Invalid credentials')
+      expect(json['error']).to eq('Invalid credentials')
     end
 
     it "rejects non-existent email" do
@@ -40,16 +39,20 @@ RSpec.describe "Authentication API", type: :request do
       post "/api/v1/auth/login", params: login_params, as: :json
 
       expect(response).to have_http_status(:unauthorized)
-      expect(JSON.parse(response.body)['error']).to eq('Invalid credentials')
+      expect(json['error']).to eq('Invalid credentials')
     end
   end
 
   describe "POST /api/v1/auth/logout" do
     it "logs out successfully" do
-      post "/api/v1/auth/logout", as: :json
+      token = AuthService.generate_token(person.id)
+
+      post "/api/v1/auth/logout",
+           headers: { "Authorization" => "Bearer #{token}" },
+           as: :json
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['message']).to eq('Logged out successfully')
+      expect(json['message']).to eq('Logged out successfully')
     end
   end
 
@@ -57,26 +60,33 @@ RSpec.describe "Authentication API", type: :request do
     it "returns current user when authenticated" do
       token = AuthService.generate_token(person.id)
 
-      get "/api/v1/auth/current_user", headers: { "Authorization" => "Bearer #{token}" }, as: :json
+      get "/api/v1/auth/current_user",
+          headers: { "Authorization" => "Bearer #{token}" },
+          as: :json
 
       expect(response).to have_http_status(:ok)
-      json_response = JSON.parse(response.body)
-      expect(json_response['email']).to eq(person.email)
-      expect(json_response['first_name']).to eq(person.first_name)
+
+      # Senior Fix: Check for the 'person' wrapper and nested attributes
+      expect(json).to have_key('person')
+      expect(json['person']['email']).to eq(person.email)
+      expect(json['person']['first_name']).to eq(person.first_name)
+      expect(json['person']['last_name']).to eq(person.last_name)
     end
 
     it "returns unauthorized when no token provided" do
       get "/api/v1/auth/current_user", as: :json
 
       expect(response).to have_http_status(:unauthorized)
-      expect(JSON.parse(response.body)['error']).to eq('Unauthorized')
+      expect(json['error']).to eq('Unauthorized')
     end
 
     it "returns unauthorized when invalid token provided" do
-      get "/api/v1/auth/current_user", headers: { "Authorization" => "Bearer invalid_token" }, as: :json
+      get "/api/v1/auth/current_user",
+          headers: { "Authorization" => "Bearer invalid_token" },
+          as: :json
 
       expect(response).to have_http_status(:unauthorized)
-      expect(JSON.parse(response.body)['error']).to eq('Unauthorized')
+      expect(json['error']).to eq('Unauthorized')
     end
   end
 end
