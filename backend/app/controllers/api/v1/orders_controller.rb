@@ -1,10 +1,11 @@
 class Api::V1::OrdersController < ApplicationController
+  include Authenticatable
+
   before_action :set_order, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/orders
   def index
-    debugger
-    @orders = Order.all.includes(:person)
+    @orders = current_person.orders.recent.includes(:person)
     render json: @orders.as_json(include: :person)
   end
 
@@ -15,22 +16,24 @@ class Api::V1::OrdersController < ApplicationController
 
   # POST /api/v1/orders
   def create
-    @order = Order.new(order_params)
-
-    if @order.save
-      render json: @order.as_json(include: :person), status: :created
-    else
-      render json: { errors: @order.errors }, status: :unprocessable_entity
-    end
+    @order = OrderCreationService.create_order(current_person, order_params)
+    render json: @order.as_json(include: :person), status: :created
+  rescue OrderCreationService::InvalidOrderError => e
+    render json: { errors: e.message }, status: :unprocessable_entity
   end
 
   # PATCH/PUT /api/v1/orders/:id
   def update
-    if @order.update(order_params)
-      render json: @order.as_json(include: :person)
-    else
-      render json: { errors: @order.errors }, status: :unprocessable_entity
-    end
+    @order = OrderUpdateService.update_order(@order, order_params)
+    render json: @order.as_json(include: :person)
+  rescue OrderUpdateService::InvalidOrderError => e
+    render json: { errors: e.message }, status: :unprocessable_entity
+  end
+
+  # GET /api/v1/orders/stats
+  def stats
+    stats = OrderStatsService.get_person_stats(current_person)
+    render json: stats
   end
 
   # DELETE /api/v1/orders/:id
@@ -39,27 +42,15 @@ class Api::V1::OrdersController < ApplicationController
     head :no_content
   end
 
-  # GET /api/v1/orders/stats
-  def stats
-    stats = {
-      total_orders: Order.count,
-      orders_today: Order.where(created_at: Date.current.all_day).count,
-      orders_this_month: Order.where(created_at: Date.current.beginning_of_month..Date.current.end_of_month).count,
-      pending_orders: Order.where(status: "pending").count,
-      confirmed_orders: Order.where(status: "confirmed").count,
-      delivered_orders: Order.where(status: "delivered").count
-    }
-
-    render json: stats
-  end
-
   private
 
   def set_order
-    @order = Order.find(params[:id])
+    @order = current_person.orders.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Order not found" }, status: :not_found
   end
 
   def order_params
-    params.require(:order).permit(:person_id, :status, :total_amount, :notes, :order_date)
+    params.require(:order).permit(:status, :total_amount, :notes, :order_date)
   end
 end

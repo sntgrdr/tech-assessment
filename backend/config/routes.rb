@@ -4,6 +4,11 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     namespace :v1 do
+      # Authentication endpoints
+      post "/auth/login", to: "auth#login"
+      post "/auth/logout", to: "auth#logout"
+      get "/auth/current_user", to: "auth#current_user"
+
       resources :orders do
         collection do
           get :stats
