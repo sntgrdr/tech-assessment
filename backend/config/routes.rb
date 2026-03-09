@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   # root "posts#index"
   namespace :api do
     namespace :v1 do
-      post "ingest/:source", to: "ingest#create"
+      post "ingest/:source/people", to: "ingest#create"
     end
   end
 end

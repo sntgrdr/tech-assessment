@@ -22,7 +22,7 @@ module Api
       end
 
       def payload
-        params.permit(:external_id, :email, :first_name, :last_name, :phone, :company, :job_title, :department, :manager_email, :start_date).to_h
+        params.permit(:source, :external_id, :email, :first_name, :last_name, :phone, :company, :job_title, :department, :manager_email, :start_date, :updated_at).to_h
       end
     end
   end
