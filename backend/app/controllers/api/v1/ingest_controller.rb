@@ -2,15 +2,11 @@ module Api
   module V1
     class IngestController < ApplicationController
       def create
-        ActiveRecord::Base.transaction do
-          results = people_in_batch.map do |person_data|
-            People::IngestService.new(source, person_data).call
-          end
+        people = People::BatchIngestService.new(source, people_in_batch).call
 
-          render json: {
-            people: results.map { |p| { id: p.id, email: p.email } }
-          }, status: :ok
-        end
+        render json: {
+          people: people.map { |p| serialize_person(p) }
+        }, status: :ok
       rescue ArgumentError => e
         render json: { error: e.message }, status: :unprocessable_entity
       rescue ActiveRecord::RecordInvalid => e
@@ -27,16 +23,12 @@ module Api
 
       def source
         src = params[:source]&.to_sym
-        if src && People::IngestService::STRATEGIES.key?(src)
-          return src
-        end
-
+        return src if src && People::IngestService::STRATEGIES.key?(src)
         raise ArgumentError, "Unknown source"
       end
 
       def people_in_batch
-        permitted = params.permit(people: person_attributes)
-        permitted[:people] || []
+        params.permit(people: person_attributes)[:people] || []
       end
 
       def person_attributes
@@ -44,6 +36,14 @@ module Api
           :external_id, :email, :first_name, :last_name, :phone, :company,
           :job_title, :department, :manager_email, :start_date, :updated_at
         ]
+      end
+
+      def serialize_person(person)
+        person.as_json(
+          only: [ :id, :email, :first_name, :last_name, :phone, :company,
+                 :job_title, :department, :manager_email, :start_date ],
+          include: { external_identities: { only: [ :source, :external_id, :last_synced_at ] } }
+        )
       end
     end
   end
