@@ -26,7 +26,7 @@ module People
     attr_reader :source, :data
 
     def find_or_create_person
-      Person.find_or_initialize_by(email: data[:email]).tap do |person|
+      Person.find_or_initialize_by(email: data[:email]&.downcase!).tap do |person|
         person.update!(person_attributes)
       end
     end
