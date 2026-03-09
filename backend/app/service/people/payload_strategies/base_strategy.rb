@@ -2,7 +2,7 @@ module People
   module PayloadStrategies
     class BaseStrategy
       def initialize(data)
-        @data = data
+        @data = People::NormalizationService.call(data)
       end
 
       def person_attributes
