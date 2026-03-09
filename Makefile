@@ -21,3 +21,12 @@ db.init:
 
 db.migrate:
 	docker-compose run backend bundle exec rake db:migrate
+
+rspec:
+	docker-compose exec backend bundle exec rspec ${FILE}
+
+rubocop:
+	docker-compose exec backend bundle exec rubocop
+
+rubocop.autofix:
+	docker-compose exec backend bundle exec rubocop -A
