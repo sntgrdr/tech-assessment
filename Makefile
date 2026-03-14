@@ -30,3 +30,6 @@ rubocop:
 
 rubocop.autofix:
 	docker-compose exec backend bundle exec rubocop -A
+
+images.build:
+	docker-compose build

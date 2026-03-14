@@ -12,7 +12,7 @@ RUN apt-get update -qq && \
     postgresql-client
 
 # Set working directory
-WORKDIR /app
+WORKDIR /rails
 
 # Copy Gemfile and Gemfile.lock
 COPY Gemfile Gemfile.lock ./
