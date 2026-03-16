@@ -20,7 +20,7 @@ services:
     build:
       context: ./backend
     working_dir: /rails
-    command: ["./bin/rails", "server", "-b", "0.0.0.0"]
+    command: sh -c "bundle install && ./bin/rails server -b 0.0.0.0"
     volumes:
       - ./backend:/rails
     environment:
@@ -59,33 +59,6 @@ services:
       - "6379:6379"
     networks:
       - aceup
-  sidekiq:
-    build:
-      context: ./backend
-    working_dir: /rails
-    command: bundle exec sidekiq
-    volumes:
-      - ./backend:/rails
-    environment:
-      - RAILS_ENV=development
-      - DATABASE_HOST=db
-      - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=aceup_db
-      - REDIS_URL=redis://redis:6379/1
-    depends_on:
-      - db
-      - redis
-    networks:
-      - aceup
-
-  mailcatcher:
-    image: sj26/mailcatcher
-    ports:
-      - "1080:1080" # Interfaz Web
-      - "1025:1025" # Servidor SMTP (donde Rails mandará los mails)
-    networks:
-      - aceup
 
 volumes:
   db_data:
@@ -93,4 +66,3 @@ volumes:
 networks:
   aceup:
     driver: bridge
-
