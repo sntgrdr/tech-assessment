@@ -18,20 +18,6 @@ This project uses RSpec for testing with the following gems:
 - `faker` (~> 3.2) - Realistic test data
 - `shoulda-matchers` (~> 5.3) - Validation testing
 
-### Running Tests
-```bash
-# Run all tests
-bundle exec rspec
-
-# Run specific test types
-bundle exec rspec spec/models
-bundle exec rspec spec/requests
-bundle exec rspec spec/services
-
-# Run with verbose output
-bundle exec rspec --format documentation
-```
-
 ### Test Structure
 ```
 spec/
@@ -48,16 +34,37 @@ spec/
 - No Database Cleaner needed (Rails 7.2 native approach)
 
 ## Development Commands
-```bash
-# Start development server
-rails server -b 0.0.0.0
 
-# Run migrations
-rails db:migrate
+Common development tasks are available through the Makefile. running `make {command}`
 
-# Access Rails console
-rails console
+Build Docker images.(Or Installing new gems.):
 
-# Run tests
-bundle exec rspec
-```
+`images.build`
+
+Installing new gems.Start all services:
+
+`make start`
+
+Stop all services:
+
+`make stop`
+
+Open a Rails console:
+
+`make rails.c`
+
+Open a shell inside the backend container:
+
+`make sh`
+
+Update gems:
+
+`make bundle.update`
+
+Run RuboCop:
+
+`make rubocop`
+
+Auto-fix RuboCop issues:
+
+`make rubocop.autofix`

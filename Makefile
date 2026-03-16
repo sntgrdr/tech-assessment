@@ -30,3 +30,6 @@ rubocop:
 
 rubocop.autofix:
 	docker-compose run --rm --no-deps backend rubocop -A
+
+images.build:
+	docker-compose build
